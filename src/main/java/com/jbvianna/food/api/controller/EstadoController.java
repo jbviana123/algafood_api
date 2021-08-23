@@ -2,12 +2,24 @@ package com.jbvianna.food.api.controller;
 
 import java.util.List;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.jbvianna.food.api.model.EstadoXmlWrapper;
 import com.jbvianna.food.domain.model.Estado;
 import com.jbvianna.food.domain.repository.EstadoRepository;
 @Controller
@@ -23,5 +35,66 @@ public class EstadoController {
 		
 		return estadoRepository.listar();
 	}
+	
+	@GetMapping(produces = MediaType.APPLICATION_XML_VALUE)
+	public EstadoXmlWrapper listarXml(){
+		
+		return new EstadoXmlWrapper(estadoRepository.listar());
+	}
+	@GetMapping("/{estadoId}")
+	public ResponseEntity<Estado> buscar(@PathVariable Long estadoId){
+		Estado estado = estadoRepository.buscar(estadoId);
+		
+		if(estado != null) {
+		return ResponseEntity.ok(estado);
+		}
+	    return ResponseEntity.notFound().build();
+		
+	}
+	@ResponseStatus(HttpStatus.CREATED)
+	@PostMapping
+	public Estado adicionar(@RequestBody Estado estado){
+		return estadoRepository.salvar(estado);
+		
+	}
+	
+	@PutMapping("/{estadoId}")
+	public ResponseEntity<Estado> atualizar(@PathVariable Long estadoId,
+			@RequestBody Estado estado){
+		
+		    Estado estadoAtual = estadoRepository.buscar(estadoId);
+		    
+		    if(estadoAtual != null) {
+		    	BeanUtils.copyProperties(estado, estadoAtual,"id");
+		    	
+		    	estadoRepository.salvar(estadoAtual);
+		    	
+		    	return ResponseEntity.ok(estadoAtual);
+		    }
+		    
+		    return ResponseEntity.notFound().build();
+		
+	}
+	@DeleteMapping("/{estadoId}")
+	public ResponseEntity<Estado> remover(@PathVariable Long estadoId){
+		
+		try {
+		Estado estado = estadoRepository.buscar(estadoId);
+		
+		if(estado != null) {
+			estadoRepository.remover(estado);
+			return ResponseEntity.noContent().build();
+			
+		}
+		return ResponseEntity.notFound().build();
+	
+		
+	}catch(DataIntegrityViolationException e) {
+		
+		return ResponseEntity.status(HttpStatus.CONFLICT).build();
+	}
+	
+}
+	
 	
 }

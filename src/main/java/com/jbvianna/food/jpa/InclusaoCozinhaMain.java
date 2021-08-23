@@ -19,10 +19,10 @@ public class InclusaoCozinhaMain {
 				CozinhaRepository cozinhaRepository = applicationContext.getBean(CozinhaRepository.class);
 				
 				Cozinha cozinha1 = new Cozinha();
-				cozinha1.setNome("Brasileira");
+				cozinha1.setNome("alema");
 				
 				Cozinha cozinha2 = new Cozinha();
-				cozinha2.setNome("japonesa");
+				cozinha2.setNome("Russa");
 				
 				cozinha1 = cozinhaRepository.adicionar(cozinha1);
 				cozinha2 = cozinhaRepository.adicionar(cozinha2);

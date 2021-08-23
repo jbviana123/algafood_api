@@ -6,14 +6,17 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonRootName;
 
+@JsonRootName("cozinha")
 @Entity
 public class Cozinha {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
+	//@JsonIgnore //so nao mostra a propriedade na descriçao do json
+	//@JsonProperty("titulo")//muda a descriçao do retorno no json
 	@Column(nullable=false)
 	private String nome;
 
