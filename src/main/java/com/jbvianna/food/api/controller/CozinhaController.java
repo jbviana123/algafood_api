@@ -1,10 +1,10 @@
 package com.jbvianna.food.api.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -39,24 +39,25 @@ public class CozinhaController {
     @GetMapping
 	public List<Cozinha> listar(){
 		
-		return cozinhaRepository.todas();
+		return cozinhaRepository.findAll();
 	}
     
     @GetMapping(produces = MediaType.APPLICATION_XML_VALUE)
     public CozinhasXmlWrapper listarXml() {
-    	return new CozinhasXmlWrapper(cozinhaRepository.todas());
+    	return new CozinhasXmlWrapper(cozinhaRepository.findAll());
     }
     
     
     @GetMapping("/{cozinhaId}")//@pathvariable atribui o id a variavel de nome cozinhaId no getMapping
     public ResponseEntity<Cozinha> buscar(@PathVariable Long cozinhaId) {
-    	Cozinha cozinha = cozinhaRepository.porId(cozinhaId);
+    	Optional<Cozinha> cozinha = cozinhaRepository.findById(cozinhaId);
     	
+    	//com o optinal evita-se o nullpointerexeption
     	//aqui fazemos um tratamento para um requisiçao inexistente 
     	//se cozinha existe
-    	if(cozinha != null) {
+    	if(cozinha.isPresent()) {
     		//retorna ok e e a representaçao da cozinha
-    		return ResponseEntity.ok(cozinha);
+    		return ResponseEntity.ok(cozinha.get());
     	}
     	//caso contrario retorne notFound sem um corpo na resposta
     	return ResponseEntity.notFound().build();
@@ -89,17 +90,17 @@ public class CozinhaController {
     		uma nova instancia no caso a cozinha atual*/
     		@RequestBody Cozinha cozinha){
     	
-    	Cozinha cozinhaAtual = cozinhaRepository.porId(cozinhaId);
+    	Optional<Cozinha> cozinhaAtual = cozinhaRepository.findById(cozinhaId);
     	
-    	if(cozinhaAtual != null) {
+    	if(cozinhaAtual.isPresent()) {
     	//cozinhaAtual.setNome(cozinha.getNome());
     	
     	//este metodo esta copiando as propiedades da cozinha cozinhaAtual
-    	BeanUtils.copyProperties(cozinha, cozinhaAtual,"id");
+    	BeanUtils.copyProperties(cozinha, cozinhaAtual.get(),"id");
     	                                               //ignora o id e nao passa 
-    	cozinhaAtual = cadastroCozinha.salvar(cozinhaAtual);
+    	Cozinha cozinhaSalva = cadastroCozinha.salvar(cozinhaAtual.get());
     	
-    	return ResponseEntity.ok(cozinhaAtual);
+    	return ResponseEntity.ok(cozinhaSalva);
     	}
     	return ResponseEntity.notFound().build();
     	

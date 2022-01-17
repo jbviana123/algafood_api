@@ -1,6 +1,7 @@
 package com.jbvianna.food.api.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +21,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jbvianna.food.api.model.EstadoXmlWrapper;
+import com.jbvianna.food.domain.exeption.EntidadeEmUsoException;
+import com.jbvianna.food.domain.exeption.EntidadeNaoEncontradaException;
 import com.jbvianna.food.domain.model.Estado;
 import com.jbvianna.food.domain.repository.EstadoRepository;
+import com.jbvianna.food.domain.servico.CadastroEstadoService;
 @Controller
 @RestController
 @RequestMapping("/estados")
@@ -30,23 +34,26 @@ public class EstadoController {
 	@Autowired
 	private EstadoRepository estadoRepository;
 	
+	@Autowired
+	private CadastroEstadoService cadastroEstado;
+	
 	@GetMapping
 	public List<Estado> listarEstados(){
 		
-		return estadoRepository.listar();
+		return estadoRepository.findAll();
 	}
 	
 	@GetMapping(produces = MediaType.APPLICATION_XML_VALUE)
 	public EstadoXmlWrapper listarXml(){
 		
-		return new EstadoXmlWrapper(estadoRepository.listar());
+		return new EstadoXmlWrapper(estadoRepository.findAll());
 	}
 	@GetMapping("/{estadoId}")
 	public ResponseEntity<Estado> buscar(@PathVariable Long estadoId){
-		Estado estado = estadoRepository.buscar(estadoId);
+		Optional<Estado> estado = estadoRepository.findById(estadoId);
 		
 		if(estado != null) {
-		return ResponseEntity.ok(estado);
+		return ResponseEntity.ok(estado.get());
 		}
 	    return ResponseEntity.notFound().build();
 		
@@ -54,7 +61,7 @@ public class EstadoController {
 	@ResponseStatus(HttpStatus.CREATED)
 	@PostMapping
 	public Estado adicionar(@RequestBody Estado estado){
-		return estadoRepository.salvar(estado);
+		return cadastroEstado.salvar(estado);
 		
 	}
 	
@@ -62,12 +69,12 @@ public class EstadoController {
 	public ResponseEntity<Estado> atualizar(@PathVariable Long estadoId,
 			@RequestBody Estado estado){
 		
-		    Estado estadoAtual = estadoRepository.buscar(estadoId);
+		    Estado estadoAtual = estadoRepository.findById(estadoId).orElse(null);
 		    
 		    if(estadoAtual != null) {
 		    	BeanUtils.copyProperties(estado, estadoAtual,"id");
 		    	
-		    	estadoRepository.salvar(estadoAtual);
+		    	estadoAtual=cadastroEstado.salvar(estadoAtual);
 		    	
 		    	return ResponseEntity.ok(estadoAtual);
 		    }
@@ -76,24 +83,19 @@ public class EstadoController {
 		
 	}
 	@DeleteMapping("/{estadoId}")
-	public ResponseEntity<Estado> remover(@PathVariable Long estadoId){
+	public ResponseEntity<?> remover(@PathVariable Long estadoId){
 		
 		try {
-		Estado estado = estadoRepository.buscar(estadoId);
-		
-		if(estado != null) {
-			estadoRepository.remover(estado);
+			cadastroEstado.excluir(estadoId);	
 			return ResponseEntity.noContent().build();
 			
+		} catch (EntidadeNaoEncontradaException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+			
+		} catch (EntidadeEmUsoException e) {
+			return ResponseEntity.status(HttpStatus.CONFLICT)
+					.body(e.getMessage());
 		}
-		return ResponseEntity.notFound().build();
-	
-		
-	}catch(DataIntegrityViolationException e) {
-		
-		return ResponseEntity.status(HttpStatus.CONFLICT).build();
-	}
-	
 }
 	
 	

@@ -21,11 +21,8 @@ public class Permissao {
     
     
 
-	public Permissao(Long id, String nome, String descricao) {
-		super();
-		this.id = id;
-		this.nome = nome;
-		this.descricao = descricao;
+	public Permissao() {
+		
 	}
 
 	public Long getId() {

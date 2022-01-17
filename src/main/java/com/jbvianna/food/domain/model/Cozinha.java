@@ -68,6 +68,13 @@ public class Cozinha {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "Cozinha [id=" + id + ", nome=" + nome + "]";
+	}
+	
+	
+
     
 
 	

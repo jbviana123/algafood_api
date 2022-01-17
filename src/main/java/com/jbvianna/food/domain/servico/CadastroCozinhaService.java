@@ -19,14 +19,15 @@ public class CadastroCozinhaService {
 	/*AQUI INJETAMOS UMA COZINHA REPOSITORY*/
     @Autowired
     private CozinhaRepository cozinhaRepository;
+    
 	public Cozinha salvar(Cozinha cozinha) {
 	    
-		return cozinhaRepository.adicionar(cozinha);
+		return cozinhaRepository.save(cozinha);
 	}
 	/*aqui estou fazendo o tratamento de excessoes que esta no controller*/
 	public void excluir(Long cozinhaId) {
 		try {
-			cozinhaRepository.remover(cozinhaId);
+			cozinhaRepository.deleteById(cozinhaId);
 			/*aqui excessao lançada quando cozinha esta em uso 
 			 * e nao pode ser removida*/
 		}catch(EmptyResultDataAccessException e) {
