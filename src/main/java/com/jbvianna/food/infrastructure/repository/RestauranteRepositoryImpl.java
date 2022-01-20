@@ -1,5 +1,8 @@
 package com.jbvianna.food.infrastructure.repository;
 
+import static com.jbvianna.food.infrastructure.repository.Spec.RestauranteSpecs.comFreteGratis;
+import static com.jbvianna.food.infrastructure.repository.Spec.RestauranteSpecs.comNomeSemelhante;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,16 +11,22 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.Predicate;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
 import com.jbvianna.food.domain.model.Restaurante;
+import com.jbvianna.food.domain.repository.RestauranteRepository;
 import com.jbvianna.food.domain.repository.RestauranteRepositoryQueries;
 
 @Repository
 public class RestauranteRepositoryImpl implements RestauranteRepositoryQueries {
     @PersistenceContext
 	private EntityManager manager;
+    
+    @Autowired @Lazy
+    private RestauranteRepository restauranteRepository;
 	
 	@Override
 	public List<Restaurante> find(String nome ,BigDecimal taxaFreteInicial,
@@ -49,13 +58,13 @@ public class RestauranteRepositoryImpl implements RestauranteRepositoryQueries {
 		
 		
 		var query = manager.createQuery(criteria);
-			return query.getResultList();
-		
-		      
-	    	       
-	    	   
-	    	  
-	    	   
+			return query.getResultList();   
 		    	   
 	       }
+
+	@Override
+	public List<Restaurante> findComFreteGratis(String nome) {
+		return restauranteRepository.findAll(comFreteGratis()
+				.and(comNomeSemelhante(nome)));
+	}
 }
