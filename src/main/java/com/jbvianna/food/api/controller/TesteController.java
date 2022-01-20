@@ -1,5 +1,8 @@
 package com.jbvianna.food.api.controller;
 
+import static com.jbvianna.food.infrastructure.repository.Spec.RestauranteSpecs.comFreteGratis;
+import static com.jbvianna.food.infrastructure.repository.Spec.RestauranteSpecs.comNomeSemelhante;
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -14,8 +17,6 @@ import com.jbvianna.food.domain.model.Cozinha;
 import com.jbvianna.food.domain.model.Restaurante;
 import com.jbvianna.food.domain.repository.CozinhaRepository;
 import com.jbvianna.food.domain.repository.RestauranteRepository;
-import com.jbvianna.food.infrastructure.repository.Spec.RestauranteComFreteGratisSpec;
-import com.jbvianna.food.infrastructure.repository.Spec.RestauranteComNomeSemelhanteSpec;
 
 @RestController
 @RequestMapping("/teste")
@@ -86,10 +87,9 @@ public class TesteController {
 	
 	@GetMapping("/restaurantes/com-frete-gratis")
 	public List<Restaurante> restauranteComFreteGratis(@RequestParam String nome ){
-		var comFreteGratis = new RestauranteComFreteGratisSpec();
-		var comNomeSemelhante = new RestauranteComNomeSemelhanteSpec(nome);
 	
-		return restauranteRepository.findAll(comFreteGratis.and(comNomeSemelhante));
+		return restauranteRepository.findAll(comFreteGratis()
+				.and(comNomeSemelhante(nome)));
 	}	
 	
 }
