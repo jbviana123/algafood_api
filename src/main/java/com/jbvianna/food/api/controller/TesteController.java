@@ -7,12 +7,15 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jbvianna.food.domain.model.Cozinha;
 import com.jbvianna.food.domain.model.Restaurante;
 import com.jbvianna.food.domain.repository.CozinhaRepository;
 import com.jbvianna.food.domain.repository.RestauranteRepository;
+import com.jbvianna.food.infrastructure.repository.Spec.RestauranteComFreteGratisSpec;
+import com.jbvianna.food.infrastructure.repository.Spec.RestauranteComNomeSemelhanteSpec;
 
 @RestController
 @RequestMapping("/teste")
@@ -81,6 +84,15 @@ public class TesteController {
 		return restauranteRepository.find(nome,taxaFreteInicial,taxaFreteFinal);
 	}	
 	
+	@GetMapping("/restaurantes/com-frete-gratis")
+	public List<Restaurante> restauranteComFreteGratis(@RequestParam String nome ){
+		var comFreteGratis = new RestauranteComFreteGratisSpec();
+		var comNomeSemelhante = new RestauranteComNomeSemelhanteSpec(nome);
+	
+		return restauranteRepository.findAll(comFreteGratis.and(comNomeSemelhante));
+	}	
+	
 }
+	
 	
 
