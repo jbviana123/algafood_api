@@ -10,6 +10,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 @Entity
 public class Restaurante {
@@ -26,6 +28,7 @@ public class Restaurante {
 	@Column(name="taxa_frete",nullable=false)
 	private BigDecimal taxaFrete;
 	
+//	@JsonIgnore
 	@ManyToOne
 	@JoinColumn(name="cozinha_id",nullable = false)
 	private Cozinha cozinha;
